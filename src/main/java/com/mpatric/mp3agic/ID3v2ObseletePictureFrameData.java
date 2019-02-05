@@ -28,10 +28,10 @@ public class ID3v2ObseletePictureFrameData extends ID3v2PictureFrameData {
 		pictureType = bytes[4];
 		int marker = BufferTools.indexOfTerminatorForEncoding(bytes, 5, bytes[0]);
 		if (marker >= 0) {
-			description = new EncodedText(bytes[0], BufferTools.copyBuffer(bytes, 5, marker - 5));
+			description = new EncodedText(BufferTools.copyBuffer(bytes, 5, marker - 5));
 			marker += description.getTerminator().length;
 		} else {
-			description = new EncodedText(bytes[0], "");
+			description = new EncodedText("");
 			marker = 1;
 		}
 		imageData = BufferTools.copyBuffer(bytes, marker, bytes.length - marker);

@@ -26,17 +26,17 @@ public class EncodedTextTest {
     @Test
 	public void shouldConstructFromStringOrBytes() {
 		EncodedText encodedText, encodedText2;
-		encodedText = new EncodedText(EncodedText.TEXT_ENCODING_ISO_8859_1, TEST_STRING);
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_ISO_8859_1, TestHelper.hexStringToBytes(TEST_STRING_HEX_ISO8859_1));
+		encodedText = new EncodedText(TEST_STRING);
+		encodedText2 = new EncodedText(TestHelper.hexStringToBytes(TEST_STRING_HEX_ISO8859_1));
 		assertEquals(encodedText, encodedText2);
-		encodedText = new EncodedText(EncodedText.TEXT_ENCODING_UTF_8, UNICODE_TEST_STRING);
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_8, TestHelper.hexStringToBytes(UNICODE_TEST_STRING_HEX_UTF8));
+		encodedText = new EncodedText(UNICODE_TEST_STRING);
+		encodedText2 = new EncodedText(TestHelper.hexStringToBytes(UNICODE_TEST_STRING_HEX_UTF8));
 		assertEquals(encodedText, encodedText2);
-		encodedText = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16, UNICODE_TEST_STRING);
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16, TestHelper.hexStringToBytes(UNICODE_TEST_STRING_HEX_UTF16LE));
+		encodedText = new EncodedText(UNICODE_TEST_STRING);
+		encodedText2 = new EncodedText(TestHelper.hexStringToBytes(UNICODE_TEST_STRING_HEX_UTF16LE));
 		assertEquals(encodedText, encodedText2);
-		encodedText = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16BE, UNICODE_TEST_STRING);
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16BE, TestHelper.hexStringToBytes(UNICODE_TEST_STRING_HEX_UTF16BE));
+		encodedText = new EncodedText(UNICODE_TEST_STRING);
+		encodedText2 = new EncodedText(TestHelper.hexStringToBytes(UNICODE_TEST_STRING_HEX_UTF16BE));
 		assertEquals(encodedText, encodedText2);
 	}
 
@@ -62,22 +62,22 @@ public class EncodedTextTest {
 		// no bom & no terminator
 		bytes = encodedText.toBytes();
 		assertEquals(TEST_STRING_HEX_ISO8859_1, TestHelper.bytesToHexString(bytes));
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_ISO_8859_1, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 		// bom & no terminator
 		bytes = encodedText.toBytes(true);
 		assertEquals(TEST_STRING_HEX_ISO8859_1, TestHelper.bytesToHexString(bytes));
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_ISO_8859_1, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 		// no bom & terminator
 		bytes = encodedText.toBytes(false, true);
 		assertEquals(TEST_STRING_HEX_ISO8859_1 + " 00", TestHelper.bytesToHexString(bytes));
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_ISO_8859_1, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 		// bom & terminator
 		bytes = encodedText.toBytes(true, true);
 		assertEquals(TEST_STRING_HEX_ISO8859_1 + " 00", TestHelper.bytesToHexString(bytes));
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_ISO_8859_1, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 	}
 
@@ -92,22 +92,22 @@ public class EncodedTextTest {
 		bytes = encodedText.toBytes();
 		String c = TestHelper.bytesToHexString(bytes);
 		assertEquals(UNICODE_TEST_STRING_HEX_UTF8, c);
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_8, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 		// bom & no terminator
 		bytes = encodedText.toBytes(true);
 		assertEquals(UNICODE_TEST_STRING_HEX_UTF8, TestHelper.bytesToHexString(bytes));
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_8, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 		// no bom & terminator
 		bytes = encodedText.toBytes(false, true);
 		assertEquals(UNICODE_TEST_STRING_HEX_UTF8 + " 00", TestHelper.bytesToHexString(bytes));
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_8, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 		// bom & terminator
 		bytes = encodedText.toBytes(true, true);
 		assertEquals(UNICODE_TEST_STRING_HEX_UTF8 + " 00", TestHelper.bytesToHexString(bytes));
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_8, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 	}
 
@@ -121,22 +121,22 @@ public class EncodedTextTest {
 		// no bom & no terminator
 		bytes = encodedText.toBytes();
 		assertEquals(UNICODE_TEST_STRING_HEX_UTF16LE, TestHelper.bytesToHexString(bytes));
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 		// bom & no terminator
 		bytes = encodedText.toBytes(true);
 		assertEquals("ff fe " + UNICODE_TEST_STRING_HEX_UTF16LE, TestHelper.bytesToHexString(bytes));
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 		// no bom & terminator
 		bytes = encodedText.toBytes(false, true);
 		assertEquals(UNICODE_TEST_STRING_HEX_UTF16LE + " 00 00", TestHelper.bytesToHexString(bytes));
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 		// bom & terminator
 		bytes = encodedText.toBytes(true, true);
 		assertEquals("ff fe " + UNICODE_TEST_STRING_HEX_UTF16LE + " 00 00", TestHelper.bytesToHexString(bytes));
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 	}
 
@@ -150,22 +150,22 @@ public class EncodedTextTest {
 		// no bom & no terminator
 		bytes = encodedText.toBytes();
 		assertEquals(UNICODE_TEST_STRING_HEX_UTF16BE, TestHelper.bytesToHexString(bytes));
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16BE, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 		// bom & no terminator
 		bytes = encodedText.toBytes(true);
 		assertEquals("fe ff " + UNICODE_TEST_STRING_HEX_UTF16BE, TestHelper.bytesToHexString(bytes));
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16BE, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 		// no bom & terminator
 		bytes = encodedText.toBytes(false, true);
 		assertEquals(UNICODE_TEST_STRING_HEX_UTF16BE + " 00 00", TestHelper.bytesToHexString(bytes));
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16BE, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 		// bom & terminator
 		bytes = encodedText.toBytes(true, true);
 		assertEquals("fe ff " + UNICODE_TEST_STRING_HEX_UTF16BE + " 00 00", TestHelper.bytesToHexString(bytes));
-		encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16BE, bytes);
+		encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 	}
 
@@ -174,7 +174,7 @@ public class EncodedTextTest {
 		// id3 v2.2 and 2.3: encoding set to UTF_16 (type 1), but BOM set to big endian, so interpret as UTF_16BE
 		EncodedText encodedText = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16BE, UNICODE_TEST_STRING);
 		byte bytes[] = encodedText.toBytes(true, true);
-		EncodedText encodedText2 = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16, bytes);
+		EncodedText encodedText2 = new EncodedText(bytes);
 		assertEquals(encodedText, encodedText2);
 	}
 
@@ -215,16 +215,16 @@ public class EncodedTextTest {
     @Test
 	public void shouldTranscodeFromOneEncodingToAnother() throws CharacterCodingException {
 		EncodedText encodedText;
-		encodedText = new EncodedText(EncodedText.TEXT_ENCODING_UTF_8, TestHelper.hexStringToBytes("43 61 66 c3 a9 20 50 61 72 61 64 69 73 6f"));
+		encodedText = new EncodedText(TestHelper.hexStringToBytes("43 61 66 c3 a9 20 50 61 72 61 64 69 73 6f"));
 		encodedText.setTextEncoding(EncodedText.TEXT_ENCODING_ISO_8859_1, true);
 		assertEquals("43 61 66 e9 20 50 61 72 61 64 69 73 6f", TestHelper.bytesToHexString(encodedText.toBytes()));
-		encodedText = new EncodedText(EncodedText.TEXT_ENCODING_UTF_8 ,TestHelper.hexStringToBytes("43 61 66 c3 a9 20 50 61 72 61 64 69 73 6f"));
+		encodedText = new EncodedText(TestHelper.hexStringToBytes("43 61 66 c3 a9 20 50 61 72 61 64 69 73 6f"));
 		encodedText.setTextEncoding(EncodedText.TEXT_ENCODING_UTF_8, true);
 		assertEquals("43 61 66 c3 a9 20 50 61 72 61 64 69 73 6f", TestHelper.bytesToHexString(encodedText.toBytes()));
-		encodedText = new EncodedText(EncodedText.TEXT_ENCODING_UTF_8 ,TestHelper.hexStringToBytes("43 61 66 c3 a9 20 50 61 72 61 64 69 73 6f"));
+		encodedText = new EncodedText(TestHelper.hexStringToBytes("43 61 66 c3 a9 20 50 61 72 61 64 69 73 6f"));
 		encodedText.setTextEncoding(EncodedText.TEXT_ENCODING_UTF_16, true);
 		assertEquals("43 00 61 00 66 00 e9 00 20 00 50 00 61 00 72 00 61 00 64 00 69 00 73 00 6f 00", TestHelper.bytesToHexString(encodedText.toBytes()));
-		encodedText = new EncodedText(EncodedText.TEXT_ENCODING_UTF_8 ,TestHelper.hexStringToBytes("43 61 66 c3 a9 20 50 61 72 61 64 69 73 6f"));
+		encodedText = new EncodedText(TestHelper.hexStringToBytes("43 61 66 c3 a9 20 50 61 72 61 64 69 73 6f"));
 		encodedText.setTextEncoding(EncodedText.TEXT_ENCODING_UTF_16BE, true);
 		assertEquals("00 43 00 61 00 66 00 e9 00 20 00 50 00 61 00 72 00 61 00 64 00 69 00 73 00 6f", TestHelper.bytesToHexString(encodedText.toBytes()));
 	}
@@ -240,7 +240,7 @@ public class EncodedTextTest {
 
     @Test
 	public void shouldThrowExceptionWhenTranscodingWithInvalidCharacterSet() throws CharacterCodingException {
-		EncodedText encodedText = new EncodedText(EncodedText.TEXT_ENCODING_UTF_8 ,TestHelper.hexStringToBytes("43 61 66 c3 a9 20 50 61 72 61 64 69 73 6f"));
+		EncodedText encodedText = new EncodedText(TestHelper.hexStringToBytes("43 61 66 c3 a9 20 50 61 72 61 64 69 73 6f"));
 		try {
 			encodedText.setTextEncoding((byte)4, true);
 			fail("IllegalArgumentException expected but not thrown");
@@ -253,13 +253,13 @@ public class EncodedTextTest {
 	public void shouldReturnNullWhenDecodingInvalidString() throws UnsupportedEncodingException {
 		String s = "Not unicode";
 		byte[] notUnicode = BufferTools.stringToByteBuffer(s, 0, s.length());
-		EncodedText encodedText = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16, notUnicode);
+		EncodedText encodedText = new EncodedText(notUnicode);
 		assertNull(encodedText.toString());
 	}
 
     @Test
 	public void shouldHandleBacktickCharacterInString() {
-		EncodedText encodedText = new EncodedText((byte)0, BUFFER_WITH_A_BACK_TICK);
+		EncodedText encodedText = new EncodedText(BUFFER_WITH_A_BACK_TICK);
 		assertEquals("I" + (char)(96) + "m", encodedText.toString());
 	}
 
@@ -284,12 +284,12 @@ public class EncodedTextTest {
     @Test
 	public void shouldStillReturnBytesWhenDataIsEmpty() {
 		EncodedText encodedText;
-		encodedText = new EncodedText(EncodedText.TEXT_ENCODING_ISO_8859_1, new byte[] {});
+		encodedText = new EncodedText(new byte[] {});
 		assertArrayEquals(new byte[] {}, encodedText.toBytes(false, false));
 		assertArrayEquals(new byte[] {}, encodedText.toBytes(true, false));
 		assertArrayEquals(new byte[] {0}, encodedText.toBytes(false, true));
 		assertArrayEquals(new byte[] {0}, encodedText.toBytes(true, true));
-		encodedText = new EncodedText(EncodedText.TEXT_ENCODING_ISO_8859_1, new byte[] {0});
+		encodedText = new EncodedText(new byte[] {0});
 		assertArrayEquals(new byte[] {}, encodedText.toBytes(false, false));
 		assertArrayEquals(new byte[] {}, encodedText.toBytes(true, false));
 		assertArrayEquals(new byte[] {0}, encodedText.toBytes(false, true));
@@ -299,22 +299,22 @@ public class EncodedTextTest {
     @Test
 	public void shouldStillReturnBytesWhenUnicodeDataIsEmpty() {
 		EncodedText encodedText;
-		encodedText = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16, new byte[] {});
+		encodedText = new EncodedText(new byte[] {});
 		assertArrayEquals(new byte[] {}, encodedText.toBytes(false, false));
 		assertArrayEquals(new byte[] {(byte)0xff, (byte)0xfe}, encodedText.toBytes(true, false));
 		assertArrayEquals(new byte[] {0, 0}, encodedText.toBytes(false, true));
 		assertArrayEquals(new byte[] {(byte)0xff, (byte)0xfe, 0, 0}, encodedText.toBytes(true, true));
-		encodedText = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16, new byte[] {0, 0});
+		encodedText = new EncodedText(new byte[] {0, 0});
 		assertArrayEquals(new byte[] {}, encodedText.toBytes(false, false));
 		assertArrayEquals(new byte[] {(byte)0xff, (byte)0xfe}, encodedText.toBytes(true, false));
 		assertArrayEquals(new byte[] {0, 0}, encodedText.toBytes(false, true));
 		assertArrayEquals(new byte[] {(byte)0xff, (byte)0xfe, 0, 0}, encodedText.toBytes(true, true));
-		encodedText = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16, new byte[] {(byte)0xff, (byte)0xfe});
+		encodedText = new EncodedText(new byte[] {(byte)0xff, (byte)0xfe});
 		assertArrayEquals(new byte[] {}, encodedText.toBytes(false, false));
 		assertArrayEquals(new byte[] {(byte)0xff, (byte)0xfe}, encodedText.toBytes(true, false));
 		assertArrayEquals(new byte[] {0, 0}, encodedText.toBytes(false, true));
 		assertArrayEquals(new byte[] {(byte)0xff, (byte)0xfe, 0, 0}, encodedText.toBytes(true, true));
-		encodedText = new EncodedText(EncodedText.TEXT_ENCODING_UTF_16, new byte[] {(byte)0xff, (byte)0xfe, 0, 0});
+		encodedText = new EncodedText(new byte[] {(byte)0xff, (byte)0xfe, 0, 0});
 		assertArrayEquals(new byte[] {}, encodedText.toBytes(false, false));
 		assertArrayEquals(new byte[] {(byte)0xff, (byte)0xfe}, encodedText.toBytes(true, false));
 		assertArrayEquals(new byte[] {0, 0}, encodedText.toBytes(false, true));

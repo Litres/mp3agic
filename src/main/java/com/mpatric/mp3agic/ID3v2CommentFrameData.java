@@ -34,13 +34,13 @@ public class ID3v2CommentFrameData extends AbstractID3v2FrameData {
 		}
 		int marker = BufferTools.indexOfTerminatorForEncoding(bytes, 4, bytes[0]);
 		if (marker >= 4) {
-			description = new EncodedText(bytes[0], BufferTools.copyBuffer(bytes, 4, marker - 4));
+			description = new EncodedText(BufferTools.copyBuffer(bytes, 4, marker - 4));
 			marker += description.getTerminator().length;
 		} else {
-			description = new EncodedText(bytes[0], "");
+			description = new EncodedText("");
 			marker = 4;
 		}
-		comment = new EncodedText(bytes[0], BufferTools.copyBuffer(bytes, marker, bytes.length - marker));
+		comment = new EncodedText(BufferTools.copyBuffer(bytes, marker, bytes.length - marker));
 	}
 
 	protected byte[] packFrameData() {

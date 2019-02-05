@@ -42,10 +42,10 @@ public class ID3v2PictureFrameData extends AbstractID3v2FrameData {
 		marker += 2;
 		int marker2 = BufferTools.indexOfTerminatorForEncoding(bytes, marker, bytes[0]);
 		if (marker2 >= 0) {
-			description = new EncodedText(bytes[0], BufferTools.copyBuffer(bytes, marker , marker2 - marker));
+			description = new EncodedText(BufferTools.copyBuffer(bytes, marker , marker2 - marker));
 			marker2 += description.getTerminator().length;
 		} else {
-			description = new EncodedText(bytes[0], "");
+			description = new EncodedText( "");
 			marker2 = marker;
 		}
 		imageData = BufferTools.copyBuffer(bytes, marker2, bytes.length - marker2);

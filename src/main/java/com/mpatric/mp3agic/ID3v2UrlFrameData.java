@@ -25,10 +25,10 @@ public class ID3v2UrlFrameData extends AbstractID3v2FrameData {
 	protected void unpackFrameData(byte[] bytes) throws InvalidDataException {
 		int marker = BufferTools.indexOfTerminatorForEncoding(bytes, 1, bytes[0]);
 		if (marker >= 0) {
-			description = new EncodedText(bytes[0], BufferTools.copyBuffer(bytes, 1, marker - 1));
+			description = new EncodedText(BufferTools.copyBuffer(bytes, 1, marker - 1));
 			marker += description.getTerminator().length;
 		} else {
-			description = new EncodedText(bytes[0], "");
+			description = new EncodedText("");
 			marker = 1;
 		}
 		try {
