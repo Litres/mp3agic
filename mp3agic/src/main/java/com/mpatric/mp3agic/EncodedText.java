@@ -100,7 +100,7 @@ public class EncodedText {
         } else if (CHARSET_CP_1251.equals(charsetName)) {
             return TEXT_ENCODING_CP_1251;
         }
-        return TEXT_ENCODING_ISO_8859_1;
+        return TEXT_ENCODING_CP_1251;
     }
 
     private static String characterSetForTextEncoding(byte textEncoding) {
