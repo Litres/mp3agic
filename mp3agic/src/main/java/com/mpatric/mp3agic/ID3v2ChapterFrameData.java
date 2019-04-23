@@ -26,13 +26,13 @@ public class ID3v2ChapterFrameData extends AbstractID3v2FrameData {
         this.endOffset = endOffset;
     }
 
-    public ID3v2ChapterFrameData(boolean unsynchronisation, byte[] bytes)
+    public ID3v2ChapterFrameData(boolean unsynchronisation, byte[] bytes, String preferredLanguage)
             throws InvalidDataException {
         super(unsynchronisation);
-        synchroniseAndUnpackFrameData(bytes);
+        synchroniseAndUnpackFrameData(bytes,preferredLanguage);
     }
 
-    protected void unpackFrameData(byte[] bytes) throws InvalidDataException {
+    protected void unpackFrameData(byte[] bytes, String preferredLanguage) throws InvalidDataException {
         ByteBuffer bb = ByteBuffer.wrap(bytes);
         
         id = ByteBufferUtils.extractNullTerminatedString(bb);

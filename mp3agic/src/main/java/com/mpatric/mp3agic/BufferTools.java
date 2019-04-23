@@ -1,5 +1,7 @@
 package com.mpatric.mp3agic;
 
+import android.text.TextUtils;
+
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 
@@ -11,29 +13,49 @@ public class BufferTools {
 
     public static String byteBufferToStringIgnoringEncodingIssues(byte[] bytes, int offset, int length) {
         try {
-            return byteBufferToString(bytes, offset, length, defaultCharsetName);
+            return byteBufferToString(defaultCharsetName, bytes, offset, length);
         } catch (UnsupportedEncodingException e) {
             return null;
         }
     }
 
-    public static String byteBufferToStringDetectCharset(byte[] bytes, int offset, int length) {
+    public static String byteBufferToStringDetectCharset(byte[] bytes, int offset, int length, String preferredLanguage) {
+
+        String charsetName = getCharset(bytes, preferredLanguage);
+        try {
+            return byteBufferToString(charsetName, bytes, offset, length);
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
+    }
+
+    private static String getCharset(byte[] bytes, String preferredLanguage) {
         CharsetDetector cd = new CharsetDetector();
         cd.setText(bytes);
-        CharsetMatch charset = cd.detect();
-        String charsetName = charset != null ? charset.getName() : defaultCharsetName;
-        try {
-            return byteBufferToString(bytes, offset, length, charsetName);
-        } catch (UnsupportedEncodingException e) {
-            return null;
+        String charsetName = defaultCharsetName;
+        CharsetMatch[] charsets = cd.detectAll();
+        if (charsets.length == 0) {
+            charsetName = defaultCharsetName;
+        } else if (charsets.length == 1) {
+            charsetName = charsets[0].getName();
+        } else {
+            boolean charsetChoosen = false;
+            for (CharsetMatch charset : charsets) {
+                if (TextUtils.equals(charset.getLanguage(), preferredLanguage)) {
+                    charsetName = charset.getName();
+                    charsetChoosen = true;
+                    break;
+                }
+            }
+            if (!charsetChoosen) {
+                charsetName = charsets[0].getName();
+            }
         }
+        return charsetName;
     }
 
-    public static String byteBufferToString(byte[] bytes, int offset, int length) throws UnsupportedEncodingException {
-        return byteBufferToString(bytes, offset, length, defaultCharsetName);
-    }
 
-    public static String byteBufferToString(byte[] bytes, int offset, int length, String charsetName) throws UnsupportedEncodingException {
+    public static String byteBufferToString(String charsetName, byte[] bytes, int offset, int length) throws UnsupportedEncodingException {
         if (length < 1) return "";
         return new String(bytes, offset, length, charsetName);
     }

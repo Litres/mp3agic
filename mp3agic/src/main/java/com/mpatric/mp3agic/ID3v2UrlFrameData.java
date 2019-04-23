@@ -6,38 +6,38 @@ public class ID3v2UrlFrameData extends AbstractID3v2FrameData {
 
 	protected String url;
 	protected EncodedText description;
-	
+
 	public ID3v2UrlFrameData(boolean unsynchronisation) {
 		super(unsynchronisation);
 	}
-	
-	public ID3v2UrlFrameData(boolean unsynchronisation, EncodedText description, String url) {
+
+	public ID3v2UrlFrameData( EncodedText description,boolean unsynchronisation, String url) {
 		super(unsynchronisation);
 		this.description = description;
 		this.url = url;
 	}
 
-	public ID3v2UrlFrameData(boolean unsynchronisation, byte[] bytes) throws InvalidDataException {
+	public ID3v2UrlFrameData(boolean unsynchronisation, byte[] bytes, String preferredLanguage) throws InvalidDataException {
 		super(unsynchronisation);
-		synchroniseAndUnpackFrameData(bytes);
+		synchroniseAndUnpackFrameData(bytes, preferredLanguage);
 	}
-	
-	protected void unpackFrameData(byte[] bytes) throws InvalidDataException {
+
+	protected void unpackFrameData(byte[] bytes, String preferredLanguage) throws InvalidDataException {
 		int marker = BufferTools.indexOfTerminatorForEncoding(bytes, 1, bytes[0]);
 		if (marker >= 0) {
-			description = new EncodedText(BufferTools.copyBuffer(bytes, 1, marker - 1));
+			description = new EncodedText(BufferTools.copyBuffer(bytes, 1, marker - 1), preferredLanguage);
 			marker += description.getTerminator().length;
 		} else {
 			description = new EncodedText("");
 			marker = 1;
 		}
 		try {
-			url = BufferTools.byteBufferToString(bytes, marker, bytes.length - marker);
+			url = BufferTools.byteBufferToString(preferredLanguage, bytes, marker, bytes.length - marker);
 		} catch (UnsupportedEncodingException e) {
 			url = "";
 		}
 	}
-	
+
 	protected byte[] packFrameData() {
 		byte[] bytes = new byte[getLength()];
 		if (description != null) bytes[0] = description.getTextEncoding();
@@ -58,7 +58,7 @@ public class ID3v2UrlFrameData extends AbstractID3v2FrameData {
 		}
 		return bytes;
 	}
-	
+
 	protected int getLength() {
 		int length = 1;
 		if (description != null) length += description.toBytes(true, true).length;
@@ -74,7 +74,7 @@ public class ID3v2UrlFrameData extends AbstractID3v2FrameData {
 	public void setDescription(EncodedText description) {
 		this.description = description;
 	}
-	
+
 	public String getUrl() {
 		return url;
 	}
@@ -82,7 +82,7 @@ public class ID3v2UrlFrameData extends AbstractID3v2FrameData {
 	public void setUrl(String url) {
 		this.url = url;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

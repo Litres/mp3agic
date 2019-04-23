@@ -21,26 +21,26 @@ public class ID3v2CommentFrameData extends AbstractID3v2FrameData {
 		this.comment = comment;
 	}
 
-	public ID3v2CommentFrameData(boolean unsynchronisation, byte[] bytes) throws InvalidDataException {
+	public ID3v2CommentFrameData(boolean unsynchronisation, byte[] bytes, String preferredLanguage) throws InvalidDataException {
 		super(unsynchronisation);
-		synchroniseAndUnpackFrameData(bytes);
+		synchroniseAndUnpackFrameData(bytes, preferredLanguage);
 	}
 	
-	protected void unpackFrameData(byte[] bytes) throws InvalidDataException {
+	protected void unpackFrameData(byte[] bytes, String preferredLanguage) throws InvalidDataException {
 		try {
-			language = BufferTools.byteBufferToString(bytes, 1, 3);
+			language = BufferTools.byteBufferToString(preferredLanguage, bytes, 1, 3);
 		} catch (UnsupportedEncodingException e) {
 			language = "";
 		}
 		int marker = BufferTools.indexOfTerminatorForEncoding(bytes, 4, bytes[0]);
 		if (marker >= 4) {
-			description = new EncodedText(BufferTools.copyBuffer(bytes, 4, marker - 4));
+			description = new EncodedText(BufferTools.copyBuffer(bytes, 4, marker - 4),  preferredLanguage);
 			marker += description.getTerminator().length;
 		} else {
 			description = new EncodedText("");
 			marker = 4;
 		}
-		comment = new EncodedText(BufferTools.copyBuffer(bytes, marker, bytes.length - marker));
+		comment = new EncodedText(BufferTools.copyBuffer(bytes, marker, bytes.length - marker), preferredLanguage);
 	}
 
 	protected byte[] packFrameData() {

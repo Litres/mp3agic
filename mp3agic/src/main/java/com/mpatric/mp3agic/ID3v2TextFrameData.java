@@ -13,13 +13,13 @@ public class ID3v2TextFrameData extends AbstractID3v2FrameData {
 		this.text = text;
 	}
 	
-	public ID3v2TextFrameData(boolean unsynchronisation, byte[] bytes) throws InvalidDataException {
+	public ID3v2TextFrameData(boolean unsynchronisation, byte[] bytes, String preferredLanguage) throws InvalidDataException {
 		super(unsynchronisation);
-		synchroniseAndUnpackFrameData(bytes);
+		synchroniseAndUnpackFrameData(bytes, preferredLanguage);
 	}
 
-	protected void unpackFrameData(byte[] bytes) throws InvalidDataException {
-		text = new EncodedText(BufferTools.copyBuffer(bytes, 1, bytes.length - 1));
+	protected void unpackFrameData(byte[] bytes, String preferredLanguage) throws InvalidDataException {
+		text = new EncodedText(BufferTools.copyBuffer(bytes, 1, bytes.length - 1), preferredLanguage);
 	}
 	
 	protected byte[] packFrameData() {

@@ -1,5 +1,7 @@
 package com.mpatric.mp3agic;
 
+import android.text.TextUtils;
+
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 
@@ -10,6 +12,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.Arrays;
+
 
 public class EncodedText {
 
@@ -54,8 +57,8 @@ public class EncodedText {
     private byte[] value;
     private byte textEncoding;
 
-    public EncodedText(byte[] value) {
-        this.textEncoding = getTextEncodingForBytes(value);
+    public EncodedText(byte[] value, String preferredLanguage) {
+        this.textEncoding = getTextEncodingForBytes(value, preferredLanguage);
         this.value = value;
         this.stripBomAndTerminator();
     }
@@ -83,12 +86,29 @@ public class EncodedText {
         this.stripBomAndTerminator();
     }
 
-    private static byte getTextEncodingForBytes(byte[] value) {
-
+    private static byte getTextEncodingForBytes(byte[] value, String preferredLanguage) {
         CharsetDetector cd = new CharsetDetector();
         cd.setText(value);
-        CharsetMatch charset = cd.detect();
-        String charsetName = charset.getName();
+        String charsetName = CHARSET_CP_1251;
+        CharsetMatch[] charsets = cd.detectAll();
+        if (charsets.length == 0) {
+            charsetName = CHARSET_CP_1251;
+        } else if (charsets.length == 1) {
+            charsetName = charsets[0].getName();
+        } else {
+            boolean charsetChoosen = false;
+            for (CharsetMatch charset : charsets) {
+                if (TextUtils.equals(charset.getLanguage(), preferredLanguage)) {
+                    charsetName = charset.getName();
+                    charsetChoosen = true;
+                    break;
+                }
+            }
+            if (!charsetChoosen) {
+                charsetName = charsets[0].getName();
+            }
+        }
+
         if (CHARSET_ISO_8859_1.equals(charsetName)) {
             return TEXT_ENCODING_ISO_8859_1;
         } else if (CHARSET_UTF_16.equals(charsetName)) {

@@ -38,21 +38,33 @@ public class Mp3File extends FileWrapper {
 	protected Mp3File() {
 	}
 
+	/**
+	 *
+	 * @param filename
+	 * @param preferredLanguage ISO 639-1 code
+	 * @throws IOException
+	 * @throws UnsupportedTagException
+	 * @throws InvalidDataException
+	 */
+	public Mp3File(String filename, String preferredLanguage) throws IOException, UnsupportedTagException, InvalidDataException {
+		this(filename, DEFAULT_BUFFER_LENGTH, true, preferredLanguage);
+	}
+
 	public Mp3File(String filename) throws IOException, UnsupportedTagException, InvalidDataException {
-		this(filename, DEFAULT_BUFFER_LENGTH, true);
+		this(filename, DEFAULT_BUFFER_LENGTH, true, null);
 	}
 
 	public Mp3File(String filename, int bufferLength) throws IOException, UnsupportedTagException, InvalidDataException {
-		this(filename, bufferLength, true);
+		this(filename, bufferLength, true, null);
 	}
 	
 	public Mp3File(String filename, boolean scanFile) throws IOException, UnsupportedTagException, InvalidDataException {
-		this(filename, DEFAULT_BUFFER_LENGTH, scanFile);
+		this(filename, DEFAULT_BUFFER_LENGTH, scanFile, null);
 	}
 	
-	public Mp3File(String filename, int bufferLength, boolean scanFile) throws IOException, UnsupportedTagException, InvalidDataException {		
+	public Mp3File(String filename, int bufferLength, boolean scanFile, String preferredLanguage) throws IOException, UnsupportedTagException, InvalidDataException {
 		super(filename);
-		init(bufferLength, scanFile);
+		init(bufferLength, scanFile, preferredLanguage);
 	}
 
 	public Mp3File(File file) throws IOException, UnsupportedTagException, InvalidDataException {
@@ -65,10 +77,10 @@ public class Mp3File extends FileWrapper {
 	
 	public Mp3File(File file, int bufferLength, boolean scanFile) throws IOException, UnsupportedTagException, InvalidDataException {
 		super(file);
-		init(bufferLength, scanFile);
+		init(bufferLength, scanFile, null);
 	}
 
-	private void init(int bufferLength, boolean scanFile) throws IOException, UnsupportedTagException, InvalidDataException {
+	private void init(int bufferLength, boolean scanFile, String preferredLanguage) throws IOException, UnsupportedTagException, InvalidDataException {
 		if (bufferLength < MINIMUM_BUFFER_LENGTH + 1) throw new IllegalArgumentException("Buffer too small");
 		
 		this.bufferLength = bufferLength;
@@ -77,12 +89,12 @@ public class Mp3File extends FileWrapper {
 		RandomAccessFile randomAccessFile = new RandomAccessFile(file.getPath(), "r");
 		
 		try {
-			initId3v1Tag(randomAccessFile);
+			initId3v1Tag(randomAccessFile, preferredLanguage);
 			scanFile(randomAccessFile);
 			if (startOffset < 0) {
 				throw new InvalidDataException("No mpegs frames found");
 			}
-			initId3v2Tag(randomAccessFile);
+			initId3v2Tag(randomAccessFile, preferredLanguage);
 			if (scanFile) {
 				initCustomTag(randomAccessFile);
 			}
@@ -246,19 +258,19 @@ public class Mp3File extends FileWrapper {
 		this.bitrate = ((this.bitrate * (frameCount - 1)) + bitrate) / frameCount;
 	}
 	
-	private void initId3v1Tag(RandomAccessFile file) throws IOException {
+	private void initId3v1Tag(RandomAccessFile file, String preferredLanguage) throws IOException {
 		byte[] bytes = new byte[ID3v1Tag.TAG_LENGTH];
 		file.seek(getLength() - ID3v1Tag.TAG_LENGTH);
 		int bytesRead = file.read(bytes, 0, ID3v1Tag.TAG_LENGTH);
 		if (bytesRead < ID3v1Tag.TAG_LENGTH) throw new IOException("Not enough bytes read");
 		try {
-			id3v1Tag = new ID3v1Tag(bytes);
+			id3v1Tag = new ID3v1Tag(bytes, preferredLanguage);
 		} catch (NoSuchTagException e) {
 			id3v1Tag = null;
 		}
 	}
 	
-	private void initId3v2Tag(RandomAccessFile file) throws IOException, UnsupportedTagException, InvalidDataException {
+	private void initId3v2Tag(RandomAccessFile file, String preferredLanguage) throws IOException, UnsupportedTagException, InvalidDataException {
 		if (xingOffset == 0 || startOffset == 0) {
 			id3v2Tag = null;
 		} else {
@@ -270,7 +282,7 @@ public class Mp3File extends FileWrapper {
 			int bytesRead = file.read(bytes, 0, bufferLength);
 			if (bytesRead < bufferLength) throw new IOException("Not enough bytes read");
 			try {
-				id3v2Tag = ID3v2TagFactory.createTag(bytes);
+				id3v2Tag = ID3v2TagFactory.createTag(preferredLanguage, bytes);
 			} catch (NoSuchTagException e) {
 				id3v2Tag = null;
 			}

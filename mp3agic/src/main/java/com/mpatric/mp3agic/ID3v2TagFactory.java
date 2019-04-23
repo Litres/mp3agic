@@ -2,21 +2,21 @@ package com.mpatric.mp3agic;
 
 public class ID3v2TagFactory {
 
-	public static AbstractID3v2Tag createTag(byte[] bytes) throws NoSuchTagException, UnsupportedTagException, InvalidDataException {
+	public static AbstractID3v2Tag createTag(String preferredLang, byte[] bytes) throws NoSuchTagException, UnsupportedTagException, InvalidDataException {
 		sanityCheckTag(bytes);
 		int majorVersion = bytes[AbstractID3v2Tag.MAJOR_VERSION_OFFSET];
 		switch (majorVersion) {
-			case 2: return createID3v22Tag(bytes);
-			case 3: return new ID3v23Tag(bytes);
-			case 4: return new ID3v24Tag(bytes);
+			case 2: return createID3v22Tag(preferredLang, bytes);
+			case 3: return new ID3v23Tag(preferredLang, bytes);
+			case 4: return new ID3v24Tag(preferredLang, bytes);
 		}
 		throw new UnsupportedTagException("Tag version not supported");   
 	}
 
-	private static AbstractID3v2Tag createID3v22Tag(byte[] bytes) throws NoSuchTagException, UnsupportedTagException, InvalidDataException {
-		ID3v22Tag tag = new ID3v22Tag(bytes);
+	private static AbstractID3v2Tag createID3v22Tag(String preferredLang, byte[] bytes) throws NoSuchTagException, UnsupportedTagException, InvalidDataException {
+		ID3v22Tag tag = new ID3v22Tag(preferredLang, bytes);
 		if (tag.getFrameSets().size() == 0) {
-			tag = new ID3v22Tag(bytes, true);
+			tag = new ID3v22Tag(preferredLang, bytes, true);
 		}
 		return tag;
 	}

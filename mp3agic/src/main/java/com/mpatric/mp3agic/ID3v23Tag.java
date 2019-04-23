@@ -4,13 +4,13 @@ public class ID3v23Tag extends AbstractID3v2Tag {
 	
 	public static final String VERSION = "3.0";
 
-	public ID3v23Tag() {
-		super();
+	public ID3v23Tag(String preferredLang) {
+		super(preferredLang);
 		version = VERSION;
 	}
 
-	public ID3v23Tag(byte[] buffer) throws NoSuchTagException, UnsupportedTagException, InvalidDataException {
-		super(buffer);
+	public ID3v23Tag(String preferredLang, byte[] buffer) throws NoSuchTagException, UnsupportedTagException, InvalidDataException {
+		super(preferredLang, buffer);
 	}
 	
 	protected void unpackFlags(byte[] buffer) {

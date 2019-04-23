@@ -43,6 +43,6 @@ configurations.all {
 }
 
 dependencies {
-    implementation group: 'com.ibm.icu', name: 'icu4j', version: '63.1'
+    implementation group: 'com.ibm.icu', name: 'icu4j', version: '64.2'
     testImplementation group: 'junit', name: 'junit', version:'4.12'
 }

@@ -35,26 +35,32 @@ public class ID3v1Tag implements ID3v1 {
 
 	public ID3v1Tag() {
 	}
-	
-	public ID3v1Tag(byte[] bytes) throws NoSuchTagException {
-		unpackTag(bytes);
+
+	/**
+	 *
+	 * @param bytes
+	 * @param preferredLanguage  ISO 639-1
+	 * @throws NoSuchTagException
+	 */
+	public ID3v1Tag(byte[] bytes, String preferredLanguage) throws NoSuchTagException {
+		unpackTag(bytes, preferredLanguage);
 	}
 
-	private void unpackTag(byte[] bytes) throws NoSuchTagException {
+	private void unpackTag(byte[] bytes, String preferredLanguage) throws NoSuchTagException {
 		sanityCheckTag(bytes);
-		title = BufferTools.trimStringRight(BufferTools.byteBufferToStringDetectCharset(bytes, TITLE_OFFSET, TITLE_LENGTH));
-		artist = BufferTools.trimStringRight(BufferTools.byteBufferToStringDetectCharset(bytes, ARTIST_OFFSET, ARTIST_LENGTH));
-		album = BufferTools.trimStringRight(BufferTools.byteBufferToStringDetectCharset(bytes, ALBUM_OFFSET, ALBUM_LENGTH));
-		year = BufferTools.trimStringRight(BufferTools.byteBufferToStringDetectCharset(bytes, YEAR_OFFSET, YEAR_LENGTH));
+		title = BufferTools.trimStringRight(BufferTools.byteBufferToStringDetectCharset(bytes, TITLE_OFFSET, TITLE_LENGTH, preferredLanguage));
+		artist = BufferTools.trimStringRight(BufferTools.byteBufferToStringDetectCharset(bytes, ARTIST_OFFSET, ARTIST_LENGTH, preferredLanguage));
+		album = BufferTools.trimStringRight(BufferTools.byteBufferToStringDetectCharset(bytes, ALBUM_OFFSET, ALBUM_LENGTH, preferredLanguage));
+		year = BufferTools.trimStringRight(BufferTools.byteBufferToStringDetectCharset(bytes, YEAR_OFFSET, YEAR_LENGTH, preferredLanguage));
 		genre = bytes[GENRE_OFFSET] & 0xFF;
 		if (genre == 0xFF) {
 			genre = -1;
 		}
 		if (bytes[TRACK_MARKER_OFFSET] != 0) {
-			comment = BufferTools.trimStringRight(BufferTools.byteBufferToStringDetectCharset(bytes, COMMENT_OFFSET, COMMENT_LENGTH_V1_0));
+			comment = BufferTools.trimStringRight(BufferTools.byteBufferToStringDetectCharset(bytes, COMMENT_OFFSET, COMMENT_LENGTH_V1_0, preferredLanguage));
 			track = null;
 		} else {
-			comment = BufferTools.trimStringRight(BufferTools.byteBufferToStringDetectCharset(bytes, COMMENT_OFFSET, COMMENT_LENGTH_V1_1));
+			comment = BufferTools.trimStringRight(BufferTools.byteBufferToStringDetectCharset(bytes, COMMENT_OFFSET, COMMENT_LENGTH_V1_1, preferredLanguage));
 			int trackInt = bytes[TRACK_OFFSET];
 			if (trackInt == 0) {
 				track = "";

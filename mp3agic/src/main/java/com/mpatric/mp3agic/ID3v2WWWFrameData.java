@@ -15,15 +15,15 @@ public class ID3v2WWWFrameData extends AbstractID3v2FrameData {
         this.url = url;
     }
 
-    public ID3v2WWWFrameData(boolean unsynchronisation, byte[] bytes) throws InvalidDataException {
+    public ID3v2WWWFrameData(boolean unsynchronisation, byte[] bytes, String preferredLanguage) throws InvalidDataException {
         super(unsynchronisation);
-        synchroniseAndUnpackFrameData(bytes);
+        synchroniseAndUnpackFrameData(bytes, preferredLanguage);
     }
 
     @Override
-    protected void unpackFrameData(byte[] bytes) throws InvalidDataException {
+    protected void unpackFrameData(byte[] bytes, String preferredLanguage) throws InvalidDataException {
         try {
-            url = BufferTools.byteBufferToString(bytes, 0, bytes.length);
+            url = BufferTools.byteBufferToString(preferredLanguage, bytes, 0, bytes.length);
         } catch (UnsupportedEncodingException e) {
             url = "";
         }
