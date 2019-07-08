@@ -18,6 +18,7 @@ public class Mp3File extends FileWrapper {
     private static final int XING_MARKER_OFFSET_3 = 36;
 
     protected int bufferLength;
+    protected DecryptionProvider decryptionProvider;
     private int xingOffset = -1;
     private int startOffset = -1;
     private int endOffset = -1;
@@ -39,7 +40,6 @@ public class Mp3File extends FileWrapper {
     private boolean scanFile;
     private byte[] iv;
 
-
     protected Mp3File() {
     }
 
@@ -50,12 +50,13 @@ public class Mp3File extends FileWrapper {
      * @throws UnsupportedTagException
      * @throws InvalidDataException
      */
-    public Mp3File(String filename, String preferredLanguage, DecriptionProvider provider) throws IOException, UnsupportedTagException, InvalidDataException {
+    public Mp3File(String filename, String preferredLanguage, DecryptionProvider provider) throws IOException, UnsupportedTagException, InvalidDataException {
         this(filename, DEFAULT_BUFFER_LENGTH, true, preferredLanguage, provider);
     }
 
-    public Mp3File(String filename, int bufferLength, boolean scanFile, String preferredLanguage, DecriptionProvider provider) throws IOException, UnsupportedTagException, InvalidDataException {
-        super(filename, provider);
+    public Mp3File(String filename, int bufferLength, boolean scanFile, String preferredLanguage, DecryptionProvider provider) throws IOException, UnsupportedTagException, InvalidDataException {
+        super(filename);
+        decryptionProvider = provider;
         init(bufferLength, scanFile, preferredLanguage);
     }
 
@@ -68,7 +69,7 @@ public class Mp3File extends FileWrapper {
 
         RandomAccessFile randomAccessFile = new RandomAccessFile(file.getPath(), "r");
         try {
-            iv = new byte[decriptionProvider.getIvPadding()];
+            iv = new byte[decryptionProvider.getIvPadding()];
             FileInputStream fileInputStream = new FileInputStream(file);
             fileInputStream.read(iv);
             initId3v1Tag(randomAccessFile, preferredLanguage);
@@ -88,8 +89,8 @@ public class Mp3File extends FileWrapper {
     protected int preScanFile(RandomAccessFile eFile) {
         byte[] bytes = new byte[AbstractID3v2Tag.HEADER_LENGTH];
         try {
-            eFile.seek(decriptionProvider.getIvPadding());
-            InputStream decryptInputStream = decriptionProvider.getDecryptInputStream(Channels.newInputStream(eFile.getChannel()), iv, 0);
+            eFile.seek(decryptionProvider.getIvPadding());
+            InputStream decryptInputStream = decryptionProvider.getDecryptInputStream(Channels.newInputStream(eFile.getChannel()), iv, 0);
             int bytesRead = readDataFromInputStream(decryptInputStream, bytes, AbstractID3v2Tag.HEADER_LENGTH);
             if (bytesRead == AbstractID3v2Tag.HEADER_LENGTH) {
                 try {
@@ -110,9 +111,9 @@ public class Mp3File extends FileWrapper {
     private void scanFile(RandomAccessFile eFile) throws IOException, InvalidDataException {
         byte[] bytes = new byte[bufferLength];
         int fileOffset = preScanFile(eFile);
-        int padding = fileOffset + decriptionProvider.getIvPadding() % 16;
-        eFile.seek(fileOffset + decriptionProvider.getIvPadding() - padding);
-        InputStream decryptInputStream = decriptionProvider.getDecryptInputStream(Channels.newInputStream(eFile.getChannel()), iv, padding);
+        int padding = fileOffset % decryptionProvider.getBlockLength() + decryptionProvider.getIvPadding();
+        eFile.seek(fileOffset + decryptionProvider.getIvPadding() - padding);
+        InputStream decryptInputStream = decryptionProvider.getDecryptInputStream(Channels.newInputStream(eFile.getChannel()), iv, padding);
         boolean lastBlock = false;
         int lastOffset = fileOffset;
         while (!lastBlock) {
@@ -131,9 +132,9 @@ public class Mp3File extends FileWrapper {
                         }
                         offset = scanBlock(bytes, bytesRead, fileOffset, offset);
                         fileOffset += offset;
-                        padding = fileOffset + decriptionProvider.getIvPadding() % 16;
-                        eFile.seek(fileOffset + decriptionProvider.getIvPadding() - padding);
-                        decryptInputStream = decriptionProvider.getDecryptInputStream(Channels.newInputStream(eFile.getChannel()), iv, padding);
+                        padding = fileOffset % decryptionProvider.getBlockLength() + decryptionProvider.getIvPadding();
+                        eFile.seek(fileOffset + decryptionProvider.getIvPadding() - padding);
+                        decryptInputStream = decryptionProvider.getDecryptInputStream(Channels.newInputStream(eFile.getChannel()), iv, padding);
                         break;
                     } catch (InvalidDataException e) {
                         if (frameCount < 2) {
@@ -146,9 +147,9 @@ public class Mp3File extends FileWrapper {
                             if (fileOffset == 0)
                                 throw new InvalidDataException("Valid start of mpeg frames not found", e);
 
-                            padding = fileOffset + decriptionProvider.getIvPadding() % 16;
-                            eFile.seek(fileOffset + decriptionProvider.getIvPadding() - padding);
-                            decryptInputStream = decriptionProvider.getDecryptInputStream(Channels.newInputStream(eFile.getChannel()), iv, padding);
+                            padding = fileOffset % decryptionProvider.getBlockLength() + decryptionProvider.getIvPadding();
+                            eFile.seek(fileOffset + decryptionProvider.getIvPadding() - padding);
+                            decryptInputStream = decryptionProvider.getDecryptInputStream(Channels.newInputStream(eFile.getChannel()), iv, padding);
                             break;
                         }
                         return;
@@ -261,9 +262,9 @@ public class Mp3File extends FileWrapper {
 
     private void initId3v1Tag(RandomAccessFile eFile, String preferredLanguage) throws IOException {
         byte[] bytes = new byte[ID3v1Tag.TAG_LENGTH];
-        int padding = (int) ((getLength() - ID3v1Tag.TAG_LENGTH) % 16);
-        eFile.seek(getLength() - ID3v1Tag.TAG_LENGTH - padding - decriptionProvider.getIvPadding());
-        InputStream decryptInputStream = decriptionProvider.getDecryptInputStream(Channels.newInputStream(eFile.getChannel()), iv, padding);
+        int padding = (int) ((getLength() - ID3v1Tag.TAG_LENGTH) % decryptionProvider.getBlockLength());
+        eFile.seek(getLength() - ID3v1Tag.TAG_LENGTH - padding - decryptionProvider.getIvPadding());
+        InputStream decryptInputStream = decryptionProvider.getDecryptInputStream(Channels.newInputStream(eFile.getChannel()), iv, padding);
         int bytesRead = readDataFromInputStream(decryptInputStream, bytes, ID3v1Tag.TAG_LENGTH);
 
         if (bytesRead < ID3v1Tag.TAG_LENGTH) throw new IOException("Not enough bytes read");
@@ -283,8 +284,8 @@ public class Mp3File extends FileWrapper {
             if (hasXingFrame()) bufferLength = xingOffset;
             else bufferLength = startOffset;
             byte[] bytes = new byte[bufferLength];
-            eFile.seek(decriptionProvider.getIvPadding());
-            InputStream decryptInputStream = decriptionProvider.getDecryptInputStream(Channels.newInputStream(eFile.getChannel()), iv, 0);
+            eFile.seek(decryptionProvider.getIvPadding());
+            InputStream decryptInputStream = decryptionProvider.getDecryptInputStream(Channels.newInputStream(eFile.getChannel()), iv, 0);
             int bytesRead = readDataFromInputStream(decryptInputStream, bytes, bufferLength);
             if (bytesRead < bufferLength) throw new IOException("Not enough bytes read");
             try {
@@ -302,14 +303,13 @@ public class Mp3File extends FileWrapper {
             customTag = null;
         } else {
             customTag = new byte[bufferLength];
-            int padding = (endOffset + 1) % 16;
-            eFile.seek(endOffset + 1 - padding - decriptionProvider.getIvPadding());
-            InputStream decryptInputStream = decriptionProvider.getDecryptInputStream(Channels.newInputStream(eFile.getChannel()), iv, padding);
+            int padding = (endOffset + 1) % decryptionProvider.getBlockLength();
+            eFile.seek(endOffset + 1 - padding - decryptionProvider.getIvPadding());
+            InputStream decryptInputStream = decryptionProvider.getDecryptInputStream(Channels.newInputStream(eFile.getChannel()), iv, padding);
             int bytesRead = readDataFromInputStream(decryptInputStream, customTag, bufferLength);
             if (bytesRead < bufferLength) throw new IOException("Not enough bytes read");
         }
     }
-
 
     public int getFrameCount() {
         return frameCount;

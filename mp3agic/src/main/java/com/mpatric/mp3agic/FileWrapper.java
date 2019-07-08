@@ -10,14 +10,12 @@ public class FileWrapper {
     protected File file;
     protected long length;
     protected long lastModified;
-    protected DecriptionProvider decriptionProvider;
 
     protected FileWrapper() {
     }
 
-    public FileWrapper(String filename, DecriptionProvider provider) throws IOException {
+    public FileWrapper(String filename) throws IOException {
         this.file = new File(filename);
-        decriptionProvider = provider;
         init();
     }
 
