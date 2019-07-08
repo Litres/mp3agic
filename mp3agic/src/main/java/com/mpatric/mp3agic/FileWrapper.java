@@ -1,12 +1,9 @@
 package com.mpatric.mp3agic;
 
-import android.util.Log;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class FileWrapper {
 
@@ -33,24 +30,7 @@ public class FileWrapper {
     private void init() throws IOException {
         if (!file.exists()) throw new FileNotFoundException("File not found " + file.getPath());
         if (!file.canRead()) throw new IOException("File not readable");
-
-        InputStream decryptInputStream = null;
-        try {
-            decryptInputStream = decriptionProvider.getDecryptInputStream(new FileInputStream(file));
-            length = 0;
-            byte[] arr = new byte[8 * 1024];
-            int bytesRead;
-            while ((bytesRead = decryptInputStream.read(arr)) > 0) {
-                length += bytesRead;
-            }
-        } catch (Exception e) {
-            length = file.length();
-        } finally {
-            if (decryptInputStream != null) {
-                decryptInputStream.close();
-            }
-        }
-
+        length = file.length();
         lastModified = file.lastModified();
     }
 
