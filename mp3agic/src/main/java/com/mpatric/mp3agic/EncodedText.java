@@ -53,6 +53,7 @@ public class EncodedText {
             {0},
             {0}
     };
+    private static final int CHARSET_CONFIDENCE = 50;
 
     private byte[] value;
     private byte textEncoding;
@@ -96,16 +97,14 @@ public class EncodedText {
         } else if (charsets.length == 1) {
             charsetName = charsets[0].getName();
         } else {
-            boolean charsetChoosen = false;
             for (CharsetMatch charset : charsets) {
-                if (TextUtils.equals(charset.getLanguage(), preferredLanguage)) {
+                if (TextUtils.equals(charset.getLanguage(), preferredLanguage) && charset.getConfidence() > CHARSET_CONFIDENCE) {
                     charsetName = charset.getName();
-                    charsetChoosen = true;
+                    break;
+                } else if (charset.getConfidence() > CHARSET_CONFIDENCE) {
+                    charsetName = charset.getName();
                     break;
                 }
-            }
-            if (!charsetChoosen) {
-                charsetName = charsets[0].getName();
             }
         }
 
