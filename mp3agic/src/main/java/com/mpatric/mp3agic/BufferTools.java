@@ -6,6 +6,7 @@ import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 public class BufferTools {
 
@@ -20,8 +21,17 @@ public class BufferTools {
     }
 
     public static String byteBufferToStringDetectCharset(byte[] bytes, int offset, int length, String preferredLanguage) {
-
-        String charsetName = getCharset(bytes, preferredLanguage);
+        byte[] textArr = Arrays.copyOfRange(bytes, offset, offset + length);
+        boolean isEmpty = true;
+        for (byte b : textArr) {
+            if (b != 0) {
+                isEmpty = false;
+            }
+        }
+        if (isEmpty) {
+            return null;
+        }
+        String charsetName = getCharset(textArr, preferredLanguage);
         try {
             return byteBufferToString(charsetName, bytes, offset, length);
         } catch (UnsupportedEncodingException e) {
