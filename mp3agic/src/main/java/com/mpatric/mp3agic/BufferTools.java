@@ -31,7 +31,7 @@ public class BufferTools {
         if (isEmpty) {
             return null;
         }
-        String charsetName = getCharset(textArr, preferredLanguage);
+        String charsetName = getCharset(bytes, preferredLanguage);
         try {
             return byteBufferToString(charsetName, bytes, offset, length);
         } catch (UnsupportedEncodingException e) {
