@@ -101,6 +101,9 @@ public class BufferTools {
     }
 
     public static String trimStringRight(String s) {
+        if (TextUtils.isEmpty(s)) {
+            return "";
+        }
         int endPosition = s.length() - 1;
         char endChar;
         while (endPosition >= 0) {
