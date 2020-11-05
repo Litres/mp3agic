@@ -68,9 +68,10 @@ public class Mp3File extends FileWrapper {
         this.scanFile = scanFile;
 
         RandomAccessFile randomAccessFile = new RandomAccessFile(file.getPath(), "r");
+        FileInputStream fileInputStream = null;
         try {
             iv = new byte[decryptionProvider.getIvPadding()];
-            FileInputStream fileInputStream = new FileInputStream(file);
+            fileInputStream = new FileInputStream(file);
             fileInputStream.read(iv);
             initId3v1Tag(randomAccessFile, preferredLanguage);
             scanFile(randomAccessFile);
@@ -83,6 +84,9 @@ public class Mp3File extends FileWrapper {
             }
         } finally {
             randomAccessFile.close();
+            if (fileInputStream != null) {
+                fileInputStream.close();
+            }
         }
     }
 
